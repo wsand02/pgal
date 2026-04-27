@@ -22,5 +22,6 @@ func main() {
 	index.Walk(root)
 
 	http.HandleFunc("/folders/", handlers.Folders)
+	http.HandleFunc("/files/", handlers.Files)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
