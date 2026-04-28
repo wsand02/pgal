@@ -23,8 +23,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	db.Exec(models.FolderSchema())
-	db.Exec(models.FileSchema())
+	db.Exec(models.Schemas())
 
 	folderService := services.NewFolderService(db)
 	fileService := services.NewFileService(db)
