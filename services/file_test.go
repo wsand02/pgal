@@ -104,6 +104,14 @@ func TestFileService_Files(t *testing.T) {
 			},
 			create_folder: true,
 			create:        true,
+			wantErr:       false,
+		},
+		{
+			name:          "empty",
+			want:          []models.File{},
+			create_folder: false,
+			create:        false,
+			wantErr:       false,
 		},
 	}
 	for _, tt := range tests {
