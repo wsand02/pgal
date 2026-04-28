@@ -34,7 +34,8 @@ func main() {
 	folderHandler := handlers.NewFolderHandler(folderService)
 	fileHandler := handlers.NewFileHandler(fileService)
 
-	http.HandleFunc("/folders/", folderHandler.Folders)
-	http.HandleFunc("/files/", fileHandler.Files)
+	http.HandleFunc("GET /folders/", folderHandler.Folders)
+	http.HandleFunc("GET /folders/{id}", folderHandler.Folder)
+	http.HandleFunc("GET /files/", fileHandler.Files)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

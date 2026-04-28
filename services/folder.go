@@ -80,3 +80,24 @@ func (s *FolderService) Folder(id int64) (*models.Folder, error) {
 	}
 	return &fo, nil
 }
+
+func (s *FolderService) FoldersByParent(id int64) ([]models.Folder, error) {
+	rows, err := s.db.Query("SELECT * FROM folder WHERE parent_id = ?", id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var folders []models.Folder
+	for rows.Next() {
+		var fol models.Folder
+		if err := rows.Scan(&fol.ID, &fol.Name, &fol.RealPath, &fol.ParentID); err != nil {
+			return folders, err
+		}
+		folders = append(folders, fol)
+	}
+	if err = rows.Err(); err != nil {
+		return folders, err
+	}
+	return folders, nil
+}

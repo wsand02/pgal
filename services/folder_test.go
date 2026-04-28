@@ -192,3 +192,49 @@ func TestFolderService_Folder(t *testing.T) {
 		})
 	}
 }
+
+func TestFolderService_FoldersByParent(t *testing.T) {
+	tests := []struct {
+		name string // description of this test case
+		// Named input parameters for target function.
+		id      int64
+		want    []models.Folder
+		wantErr bool
+	}{
+		{
+			name:    "hellothere",
+			id:      1,
+			want:    []models.Folder{models.NewFolder(2, tfoldsub1, tfoldsub1, 1), models.NewFolder(3, tfoldsub2, tfoldsub2, 1)},
+			wantErr: false,
+		},
+		{
+			name:    "nothing",
+			id:      1,
+			want:    []models.Folder{},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := newTestFolderService(t)
+			s.AddRootFolder(tfoldroot, tfoldroot)
+			for _, fo := range tt.want {
+				s.AddChildFolder(fo.Name, fo.RealPath, *fo.ParentID)
+			}
+			got, gotErr := s.FoldersByParent(tt.id)
+			if gotErr != nil {
+				if !tt.wantErr {
+					t.Errorf("FoldersByParent() failed: %v", gotErr)
+				}
+				return
+			}
+			if tt.wantErr {
+				t.Fatal("FoldersByParent() succeeded unexpectedly")
+			}
+			// TODO: update the condition below to compare got with tt.want.
+			if !slices.EqualFunc(got, tt.want, models.FoldersEqual) {
+				t.Errorf("FoldersByParent() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
