@@ -1,11 +1,11 @@
 package main
 
 import (
-	"database/sql"
 	"flag"
 	"log"
 	"net/http"
 
+	"github.com/wsand02/pgal/database"
 	"github.com/wsand02/pgal/handlers"
 	"github.com/wsand02/pgal/index"
 	"github.com/wsand02/pgal/models"
@@ -19,7 +19,7 @@ func main() {
 	if len(root) == 0 {
 		root = "."
 	}
-	db, err := sql.Open("sqlite", "file::memory:?cache=shared")
+	db, err := database.SetupDB("file::memory:?cache=shared")
 	if err != nil {
 		log.Fatal(err.Error())
 	}

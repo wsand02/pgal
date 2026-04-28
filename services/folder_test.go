@@ -5,6 +5,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/wsand02/pgal/database"
 	"github.com/wsand02/pgal/models"
 	_ "modernc.org/sqlite"
 )
@@ -15,8 +16,8 @@ const (
 	tfoldsub2 = "sub/hej"
 )
 
-func setupTestDB() (*sql.DB, error) {
-	db, err := sql.Open("sqlite", ":memory:")
+func setupFolderTestDB() (*sql.DB, error) {
+	db, err := database.SetupDB(":memory:")
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +29,7 @@ func setupTestDB() (*sql.DB, error) {
 }
 
 func newTestFolderService(t *testing.T) *FolderService {
-	db, err := setupTestDB()
+	db, err := setupFolderTestDB()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -74,6 +75,10 @@ func TestFolderService_AddChildFolder(t *testing.T) {
 		wantErr      bool
 	}{
 		{"hellofolder", "hellofolder", tfoldsub1, 1, true, 2, false},
+		// {"hellofolder", "hellofolder", tfoldsub1, 1, false, 2, true},
+		// since the circular relationship is optional foreign key constraint
+		// isnt viable option to check if addchildfolder is used without parent
+		// since this will only ever be called from index/walk.go i will just ignore it
 	}
 
 	for _, tt := range tests {
