@@ -5,10 +5,19 @@ import (
 	"io/fs"
 	"path/filepath"
 
-	"github.com/wsand02/pgal/models"
+	"github.com/wsand02/pgal/services"
 )
 
-func Walk(root string) error {
+type Walker struct {
+	fileService   *services.FileService
+	folderService *services.FolderService
+}
+
+func NewWalker(fis *services.FileService, fos *services.FolderService) *Walker {
+	return &Walker{fileService: fis, folderService: fos}
+}
+
+func (w *Walker) Walk(root string) error {
 	clroot := filepath.Clean(root)
 	var count = 0
 	var dcount = 0
@@ -19,26 +28,26 @@ func Walk(root string) error {
 		ba := filepath.Base(path)
 
 		if d.IsDir() && clpath == clroot {
-			id, err := models.AddRootFolder(d.Name(), clroot)
+			id, err := w.folderService.AddRootFolder(d.Name(), clroot)
 			if err != nil {
 				return err
 			}
 			fmt.Printf("Root:\n\tBase: %s, Cleaned: %s, ID: %d\n", ba, clroot, id)
 		} else {
-			parent_id, err := models.ParentId(cldir)
+			parent_id, err := w.folderService.ParentId(cldir)
 			if err != nil {
 				return err
 			}
 			fmt.Printf("ParentID: %d Current: %s\n", parent_id, path)
 			if parent_id > 0 {
 				if d.IsDir() {
-					id, err := models.AddChildFolder(d.Name(), clpath, parent_id)
+					id, err := w.folderService.AddChildFolder(d.Name(), clpath, parent_id)
 					if err != nil {
 						return err
 					}
 					fmt.Printf("Child folder created with ID: %v, path: %v\n", id, clpath)
 				} else {
-					id, err := models.AddFile(d.Name(), clpath, parent_id)
+					id, err := w.fileService.AddFile(d.Name(), clpath, parent_id)
 					if err != nil {
 						return err
 					}

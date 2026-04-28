@@ -4,11 +4,21 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/wsand02/pgal/models"
+	"github.com/wsand02/pgal/services"
 )
 
-func Folders(w http.ResponseWriter, r *http.Request) {
-	folders, err := models.Folders()
+type FolderHandler struct {
+	folderService *services.FolderService
+}
+
+func NewFolderHandler(fs *services.FolderService) *FolderHandler {
+	return &FolderHandler{
+		folderService: fs,
+	}
+}
+
+func (fh *FolderHandler) Folders(w http.ResponseWriter, r *http.Request) {
+	folders, err := fh.folderService.Folders()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
