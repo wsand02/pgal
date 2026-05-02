@@ -9,7 +9,6 @@ import (
 	"github.com/wsand02/pgal/handlers"
 	"github.com/wsand02/pgal/index"
 	"github.com/wsand02/pgal/models"
-	"github.com/wsand02/pgal/services"
 	_ "modernc.org/sqlite"
 )
 
@@ -19,23 +18,13 @@ func main() {
 	if len(root) == 0 {
 		root = "."
 	}
-	db, err := database.SetupDB("file::memory:?cache=shared")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+	db := database.GetDB()
 	db.Exec(models.Schemas())
 
-	folderService := services.NewFolderService(db)
-	fileService := services.NewFileService(db)
+	index.Walk(root)
 
-	walker := index.NewWalker(fileService, folderService)
-	walker.Walk(root)
-
-	folderHandler := handlers.NewFolderHandler(folderService)
-	fileHandler := handlers.NewFileHandler(fileService)
-
-	http.HandleFunc("GET /folders/", folderHandler.Folders)
-	http.HandleFunc("GET /folders/{id}", folderHandler.Folder)
-	http.HandleFunc("GET /files/", fileHandler.Files)
+	http.HandleFunc("GET /folders/", handlers.Folders)
+	http.HandleFunc("GET /folders/{id}", handlers.Folder)
+	http.HandleFunc("GET /files/", handlers.Files)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

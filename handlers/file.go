@@ -4,21 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/wsand02/pgal/services"
+	"github.com/wsand02/pgal/models"
 )
 
-type FileHandler struct {
-	fileService *services.FileService
-}
-
-func NewFileHandler(fs *services.FileService) *FileHandler {
-	return &FileHandler{
-		fileService: fs,
-	}
-}
-
-func (fh *FileHandler) Files(w http.ResponseWriter, r *http.Request) {
-	files, err := fh.fileService.Files()
+func Files(w http.ResponseWriter, r *http.Request) {
+	files, err := models.Files()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

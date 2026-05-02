@@ -1,16 +1,26 @@
 package database
 
-import "database/sql"
+import (
+	"database/sql"
+	"log"
+	"sync"
 
-func SetupDB(dsn string) (*sql.DB, error) {
-	db, err := sql.Open("sqlite", dsn)
-	if err != nil {
-		return nil, err
-	}
-	_, err = db.Exec("PRAGMA foreign_keys = ON")
-	if err != nil {
-		return nil, err
-	}
+	_ "modernc.org/sqlite"
+)
 
-	return db, nil
+var db *sql.DB
+var once sync.Once
+
+func GetDB() *sql.DB {
+	var err error
+	once.Do(func() {
+		db, err = sql.Open("sqlite", "file::memory:?cache=shared&_foreign_keys=on")
+		if err != nil {
+			log.Fatal(err)
+		}
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	return db
 }

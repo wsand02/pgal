@@ -5,21 +5,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/wsand02/pgal/services"
+	"github.com/wsand02/pgal/models"
 )
 
-type FolderHandler struct {
-	folderService *services.FolderService
-}
-
-func NewFolderHandler(fs *services.FolderService) *FolderHandler {
-	return &FolderHandler{
-		folderService: fs,
-	}
-}
-
-func (fh *FolderHandler) Folders(w http.ResponseWriter, r *http.Request) {
-	folders, err := fh.folderService.Folders()
+func Folders(w http.ResponseWriter, r *http.Request) {
+	folders, err := models.Folders()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -31,19 +21,19 @@ func (fh *FolderHandler) Folders(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "</table>")
 }
 
-func (fh *FolderHandler) Folder(w http.ResponseWriter, r *http.Request) {
+func Folder(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("id")
 	id, err := strconv.ParseInt(idString, 10, 64)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	folder, err := fh.folderService.Folder(id)
+	folder, err := models.GetFolder(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	children, err := fh.folderService.FoldersByParent(id)
+	children, err := models.FoldersByParent(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
